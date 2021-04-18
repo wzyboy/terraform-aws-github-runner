@@ -31,3 +31,4 @@ ${install_config_runner}
 ${post_install}
 
 Start-Service "actions.runner.*"
+</powershell>
