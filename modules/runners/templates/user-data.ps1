@@ -26,8 +26,8 @@ Remove-Item C:\amazon-cloudwatch-agent.msi
 
 # Install docker
 Write-Host "Initializing docker module..."
-Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
-Install-Package -Name docker -ProviderName DockerMsftProvider -Force
+Install-Module -Name DockerMsftProvider -Repository PSGallery -Force -Confirm:$False
+Install-Package -Name docker -ProviderName DockerMsftProvider -Force -Confirm:$False
 
 # Install dependent tools
 Write-Host "Installing additional development tools"
