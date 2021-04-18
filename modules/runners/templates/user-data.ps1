@@ -1,5 +1,6 @@
 <powershell>
 $ErrorActionPreference = "Continue"
+Start-Transcript -Path "C:\UserData.log" -Append
 
 ${pre_install}
 
@@ -31,4 +32,5 @@ ${install_config_runner}
 ${post_install}
 
 Start-Service "actions.runner.*"
+Stop-Transcript
 </powershell>
