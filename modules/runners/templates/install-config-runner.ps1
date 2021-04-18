@@ -1,3 +1,4 @@
+Write-Host "Installing GitHub Actions runner..."
 mkdir \actions-runner ; Set-Location \actions-runner
 
 aws s3 cp ${s3_location_runner_distribution} actions-runner.zip
