@@ -64,6 +64,5 @@ refreshenv
 ${install_config_runner}
 ${post_install}
 
-Restart-Computer -Force
 Stop-Transcript
 </powershell>
