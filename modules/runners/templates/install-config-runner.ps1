@@ -1,9 +1,9 @@
 Write-Host "Installing GitHub Actions runner..."
-mkdir \actions-runner ; Set-Location \actions-runner
+New-Item -ItemType Directory -Path C:\actions-runner ; Set-Location C:\actions-runner
 
 aws s3 cp ${s3_location_runner_distribution} actions-runner.zip
-arc unarchive -mkdirs actions-runner.zip
-Remote-Item actions-runner.zip
+arc -folder-safe=false unarchive actions-runner.zip
+Remove-Item actions-runner.zip
 
 $InstanceId = Get-EC2InstanceMetadata -Category InstanceId
 $Region = Get-EC2InstanceMetadata -Category IdentityDocument | ConvertFrom-Json | Select-Object -ExpandProperty region
@@ -19,7 +19,7 @@ do {
     $i++
 } while (($config -eq "null") -and ($i -lt 30))
 
-aws ssm delete-paramter --name ${environment}-$INSTANCE_ID --region $REGION
+aws ssm delete-parameter --name "${environment}-$InstanceId" --region $REGION
 
-$configCmd = ".\config.cmd --unattended --name $InstanceId --work `"_work`" $config"
+$configCmd = ".\config.cmd --unattended --runasservice --name $InstanceId --work `"_work`" $config"
 Invoke-Expression $configCmd
