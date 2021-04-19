@@ -48,9 +48,9 @@ variable "scale_down_schedule_expression" {
 }
 
 variable "minimum_running_time_in_minutes" {
-  description = "The time an ec2 action runner should be running at minimum before terminated if non busy."
+  description = "The time an ec2 action runner should be running at minimum before terminated if non busy. Defaults to 5m for linux runners and 15m for windows runners"
   type        = number
-  default     = 5
+  default     = null
 }
 
 variable "runner_extra_labels" {
