@@ -51,7 +51,7 @@ $cloudwatchAgentScript = @'
 Set-Content -Path "C:\SetupCloudwatch.ps1" -Value $cloudwatchAgentScript
 
 $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument "C:\SetupCloudwatch.ps1"
-$trigger = New-ScheduledTaskTrigger -Once -At [DateTime]::UtcNow.AddMinutes(5)
+$trigger = New-ScheduledTaskTrigger -Once -At $([DateTime]::UtcNow.AddMinutes(5))
 $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 Register-ScheduledTask -TaskName 'ReconfigureCloudwatchAgent' -TaskPath '\GitHubActionsRunner\' -Action $action -Trigger $trigger -Principal $principal -Description 'Reconfigures the Cloudwatch Agent' -ErrorAction Stop 
 %{ endif ~}
