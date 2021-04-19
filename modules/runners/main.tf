@@ -25,7 +25,7 @@ locals {
     ? var.ami_filter
     : var.runner_os == "linux"
     ? { name = ["amzn2-ami-hvm-2.*-x86_64-ebs"] }
-    : { name = ["Windows_Server-20H2-English-Core-ContainersLatest"] }
+    : { name = ["Windows_Server-20H2-English-Core-ContainersLatest-*"] }
   )
 
   runner_log_files = (
