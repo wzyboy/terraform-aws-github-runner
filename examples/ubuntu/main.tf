@@ -65,7 +65,7 @@ module "runners" {
     {
       "log_group_name" : "runner",
       "prefix_log_group" : true,
-      "file_path" : "/home/runners/actions-runner/_diag/Runner_**.log",
+      "file_path" : var.runner_os == "linux" ? "/home/runners/actions-runner/_diag/Runner_**.log" : "C:/actions-runner/_diag/Runner_**.log",
       "log_stream_name" : "{instance_id}/runner"
     }
   ]

@@ -27,6 +27,31 @@ locals {
     ? { name = ["amzn2-ami-hvm-2.*-x86_64-ebs"] }
     : { name = ["Windows_Server-20H2-English-Core-ContainersLatest"] }
   )
+
+  runner_log_files = (
+    var.runner_log_files != null
+    ? var.runner_log_files
+    : [
+      {
+        "log_group_name" : "messages",
+        "prefix_log_group" : true,
+        "file_path" : "/var/log/messages",
+        "log_stream_name" : "{instance_id}"
+      },
+      {
+        "log_group_name" : "user_data",
+        "prefix_log_group" : true,
+        "file_path" : var.runner_os == "linux" ? "/var/log/user-data.log" : "C:/UserData.log",
+        "log_stream_name" : "{instance_id}"
+      },
+      {
+        "log_group_name" : "runner",
+        "prefix_log_group" : true,
+        "file_path" : var.runner_os == "linux" ? "/home/runners/actions-runner/_diag/Runner_**.log" : "C:/actions-runner/_diag/Runner_**.log",
+        "log_stream_name" : "{instance_id}"
+      }
+    ]
+  )
 }
 
 data "aws_ami" "runner" {
