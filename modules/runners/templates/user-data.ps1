@@ -45,22 +45,16 @@ while (!(Test-Path 'C:\Program Files\Amazon\AmazonCloudWatchAgent\amazon-cloudwa
     Start-Sleep -Seconds 5
 }
 
-$initScript = @'
+$cloudwatchAgentScript = @'
 & 'C:\Program Files\Amazon\AmazonCloudWatchAgent\amazon-cloudwatch-agent-ctl.ps1' -a fetch-config -m ec2 -s -c ssm:${ssm_key_cloudwatch_agent_config}
 '@
-Set-Content -Path "C:\SetupCloudwatch.ps1" -Value $initScript
+Set-Content -Path "C:\SetupCloudwatch.ps1" -Value $cloudwatchAgentScript
 
 $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument "C:\SetupCloudwatch.ps1"
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 Register-ScheduledTask -TaskName 'ReconfigureCloudwatchAgent' -TaskPath '\GitHubActionsRunner\' -Action $action -Trigger $trigger -Principal $principal -Description 'Reconfigures the Cloudwatch Agent' -ErrorAction Stop 
 %{ endif ~}
-
-# Install docker
-Write-Host "Initializing docker module..."
-Install-PackageProvider -Name NuGet -Force -Confirm:$False
-Install-Module -Name DockerMsftProvider -Repository PSGallery -Force -Confirm:$False
-Install-Package -Name docker -ProviderName DockerMsftProvider -Force -Confirm:$False
 
 # Install dependent tools
 Write-Host "Installing additional development tools"
@@ -71,5 +65,5 @@ ${install_config_runner}
 ${post_install}
 
 Stop-Transcript
-Restart-Computer
+Restart-Computer -Force
 </powershell>
