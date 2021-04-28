@@ -37,23 +37,10 @@ Get-Command curl
 %{ if enable_cloudwatch_agent ~}
 Write-Host "Setting up cloudwatch agent..."
 curl -sSLo C:\amazon-cloudwatch-agent.msi https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi
-msiexec.exe /i C:\amazon-cloudwatch-agent.msi
+$cloudwatchParams = '/i', 'C:\amazon-cloudwatch-agent.msi', '/qn', '/L*v', 'C:\CloudwatchInstall.log'
+Start-Process "msiexec.exe" $cloudwatchParams -Wait -NoNewWindow
 Remove-Item C:\amazon-cloudwatch-agent.msi
-$loop = 0;
-while (!(Test-Path 'C:\Program Files\Amazon\AmazonCloudWatchAgent\amazon-cloudwatch-agent-ctl.ps1') -and $loop -lt 5) {
-    $loop++
-    Start-Sleep -Seconds 5
-}
-
-$cloudwatchAgentScript = @'
 & 'C:\Program Files\Amazon\AmazonCloudWatchAgent\amazon-cloudwatch-agent-ctl.ps1' -a fetch-config -m ec2 -s -c ssm:${ssm_key_cloudwatch_agent_config}
-'@
-Set-Content -Path "C:\SetupCloudwatch.ps1" -Value $cloudwatchAgentScript
-
-$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument "C:\SetupCloudwatch.ps1"
-$trigger = New-ScheduledTaskTrigger -Once -At $([DateTime]::UtcNow.AddMinutes(5))
-$principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-Register-ScheduledTask -TaskName 'ReconfigureCloudwatchAgent' -TaskPath '\GitHubActionsRunner\' -Action $action -Trigger $trigger -Principal $principal -Description 'Reconfigures the Cloudwatch Agent' -ErrorAction Stop
 %{ endif ~}
 
 # Install dependent tools
