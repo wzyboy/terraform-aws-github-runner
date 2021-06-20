@@ -58,7 +58,7 @@ variable "market_options" {
 }
 
 variable "runner_os" {
-  description = "The EC2 OS type to use for action runner instances."
+  description = "The EC2 Operating System type to use for action runner instances (linux,win)."
   type        = string
   default     = "linux"
 }
