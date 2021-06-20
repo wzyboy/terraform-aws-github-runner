@@ -14,18 +14,26 @@ locals {
   role_path                      = var.role_path == null ? "/${var.environment}/" : var.role_path
   instance_profile_path          = var.instance_profile_path == null ? "/${var.environment}/" : var.instance_profile_path
   lambda_zip                     = var.lambda_zip == null ? "${path.module}/lambdas/runners/runners.zip" : var.lambda_zip
-  userdata_template              = var.userdata_template == null ? "${path.module}/templates/user-data.sh" : var.userdata_template
+  default_userdata_template      = var.runner_os == "linux" ? "${path.module}/templates/user-data.sh" : "${path.module}/templates/user-data.ps1"
+  userdata_template              = var.userdata_template == null ? local.default_userdata_template : var.userdata_template
   userdata_arm_patch             = "${path.module}/templates/arm-runner-patch.tpl"
-  userdata_install_config_runner = "${path.module}/templates/install-config-runner.sh"
+  userdata_install_config_runner = var.runner_os == "linux" ? "${path.module}/templates/install-config-runner.sh" : "${path.module}/templates/install-config-runner.ps1"
+  instance_types                 = var.instance_types == null ? [var.instance_type] : var.instance_types
 
-  instance_types = var.instance_types == null ? [var.instance_type] : var.instance_types
+  ami_filter = (
+    var.ami_filter != null
+    ? var.ami_filter
+    : var.runner_os == "linux"
+    ? { name = ["amzn2-ami-hvm-2.*-x86_64-ebs"] }
+    : { name = ["Windows_Server-2019-English-Core-Base-*"] }
+  )
 }
 
 data "aws_ami" "runner" {
   most_recent = "true"
 
   dynamic "filter" {
-    for_each = var.ami_filter
+    for_each = local.ami_filter
     content {
       name   = filter.key
       values = filter.value

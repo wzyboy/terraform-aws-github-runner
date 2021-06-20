@@ -360,3 +360,9 @@ variable "instance_types" {
   type        = set(string)
   default     = null
 }
+
+variable "runner_os" {
+  description = "The OS to use for GitHub Actions Runners (linux,win)"
+  type        = string
+  default     = "linux"
+}

@@ -67,6 +67,7 @@ module "runners" {
   s3_bucket_runner_binaries   = module.runner_binaries.bucket
   s3_location_runner_binaries = local.s3_action_runner_url
 
+  runner_os             = var.runner_os
   instance_type         = var.instance_type
   instance_types        = var.instance_types
   market_options        = var.market_options
@@ -128,6 +129,7 @@ module "runner_binaries" {
 
   distribution_bucket_name = "${var.environment}-dist-${random_string.random.result}"
 
+  runner_os                        = var.runner_os
   runner_architecture              = local.runner_architecture
   runner_allow_prerelease_binaries = var.runner_allow_prerelease_binaries
 
