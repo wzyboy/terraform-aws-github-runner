@@ -17,15 +17,18 @@ locals {
   default_userdata_template      = var.runner_os == "linux" ? "${path.module}/templates/user-data.sh" : "${path.module}/templates/user-data.ps1"
   userdata_template              = var.userdata_template == null ? local.default_userdata_template : var.userdata_template
   userdata_arm_patch             = "${path.module}/templates/arm-runner-patch.tpl"
-  userdata_install_config_runner = var.runner_os == "linux" ? "${path.module}/templates/install-config-runner.sh" : "${path.module}/templates/install-config-runner.ps1"
   instance_types                 = var.instance_types == null ? [var.instance_type] : var.instance_types
+  userdata_install_config_runner = var.runner_os == "win" ? "${path.module}/templates/install-config-runner.ps1" : "${path.module}/templates/install-config-runner.sh"
 
+  # see also: ../../main.tf
   ami_filter = (
-    var.ami_filter != null
+    length(var.ami_filter) > 0
     ? var.ami_filter
-    : var.runner_os == "linux"
-    ? { name = ["amzn2-ami-hvm-2.*-x86_64-ebs"] }
-    : { name = ["Windows_Server-20H2-English-Core-ContainersLatest-*"] }
+    : var.runner_architecture == "arm64"
+    ? { name = ["amzn2-ami-hvm-2*-arm64-gp2"] }
+    : var.runner_os == "win"
+    ? { name = ["Windows_Server-20H2-English-Core-ContainersLatest-*"] }
+    : { name = ["amzn2-ami-hvm-2.*-x86_64-ebs"] }
   )
 
   runner_log_files = (
@@ -41,13 +44,13 @@ locals {
       {
         "log_group_name" : "user_data",
         "prefix_log_group" : true,
-        "file_path" : var.runner_os == "linux" ? "/var/log/user-data.log" : "C:/UserData.log",
+        "file_path" : var.runner_os == "win" ? "C:/UserData.log" : "/var/log/user-data.log",
         "log_stream_name" : "{instance_id}"
       },
       {
         "log_group_name" : "runner",
         "prefix_log_group" : true,
-        "file_path" : var.runner_os == "linux" ? "/home/runners/actions-runner/_diag/Runner_**.log" : "C:/actions-runner/_diag/Runner_**.log",
+        "file_path" : var.runner_os == "win" ? "C:/actions-runner/_diag/Runner_**.log" : "/home/runners/actions-runner/_diag/Runner_**.log",
         "log_stream_name" : "{instance_id}"
       }
     ]

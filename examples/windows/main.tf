@@ -1,6 +1,6 @@
 locals {
-  environment = "ubuntu"
-  aws_region  = "eu-west-1"
+  environment = "windows"
+  aws_region  = "us-east-1"
 }
 
 resource "random_password" "random" {
@@ -14,6 +14,7 @@ module "runners" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
+  runner_os   = "win"
   environment = local.environment
   tags = {
     Project = "ProjectX"
@@ -32,51 +33,35 @@ module "runners" {
   # runners_lambda_zip                = "lambdas-download/runners.zip"
 
   enable_organization_runners = false
-  runner_extra_labels         = "ubuntu,example"
+  runner_extra_labels         = "windows,example"
 
   # enable access to the runners via SSM
   enable_ssm_on_runners = true
 
-  userdata_template = "./templates/user-data.sh"
-  ami_owners        = ["099720109477"] # Canonical's Amazon account ID
-
   ami_filter = {
-    name = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-
-  block_device_mappings = {
-    # Set the block device name for Ubuntu root device
-    device_name = "/dev/sda1"
+    name = ["Windows_Server-20H2-English-Core-ContainersLatest-*"]
   }
 
   runner_log_files = [
     {
-      "log_group_name" : "syslog",
-      "prefix_log_group" : true,
-      "file_path" : "/var/log/syslog",
-      "log_stream_name" : "{instance_id}"
-    },
-    {
       "log_group_name" : "user_data",
       "prefix_log_group" : true,
-      "file_path" : "/var/log/user-data.log",
-      "log_stream_name" : "{instance_id}/user_data"
+      "file_path" : var.runner_os == "linux" ? "/var/log/user-data.log" : "C:/UserData.log",
+      "log_stream_name" : "{instance_id}"
     },
     {
       "log_group_name" : "runner",
       "prefix_log_group" : true,
-      "file_path" : "/home/runners/actions-runner/_diag/Runner_**.log",
-      "log_stream_name" : "{instance_id}/runner"
+      "file_path" : var.runner_os == "linux" ? "/home/runners/actions-runner/_diag/Runner_**.log" : "C:/actions-runner/_diag/Runner_**.log",
+      "log_stream_name" : "{instance_id}"
     }
   ]
 
   # Uncommet idle config to have idle runners from 9 to 5 in time zone Amsterdam
+  # Idling is recommended as Windows runners can take some time to spin up
   # idle_config = [{
   #   cron      = "* * 9-17 * * *"
   #   timeZone  = "Europe/Amsterdam"
   #   idleCount = 1
   # }]
-
-  # disable KMS and encryption
-  # encrypt_secrets = false
 }

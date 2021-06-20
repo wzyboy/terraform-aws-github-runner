@@ -244,6 +244,8 @@ idle_config = [{
 }]
 ```
 
+_**Note**_: When using Windows runners it's recommended to keep a few runners warmed up due to the minutes-long cold start time.
+
 #### Supported config <!-- omit in toc -->
 
 Cron expressions are parsed by [cron-parser](https://github.com/harrisiirak/cron-parser#readme). The supported syntax.
@@ -268,6 +270,8 @@ Examples are located in the [examples](./examples) directory. The following exam
 
 - _[Default](examples/default/README.md)_: The default example of the module
 - _[Permissions boundary](examples/permissions-boundary/README.md)_: Example usages of permissions boundaries.
+- _[Ubuntu](examples/ubuntu/README.md)_: Example usage of creating a runner using Ubuntu AMIs.
+- _[Ubuntu](examples/windows/README.md)_: Example usage of creating a runner using Windows as the OS.
 
 ## Sub modules
 
