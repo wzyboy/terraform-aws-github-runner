@@ -200,7 +200,7 @@ The lambda for syncing the GitHub distribution to S3 is triggered via CloudWatch
 ### Setup the webhook / GitHub App (part 2)
 
 At this point you have two options. Either create a separate webhook (enterprise, 
-org, or repo), or create webhook in the App. The webhook is used to receive GitHub events to scale-up runners. Tha App is used to authorize against GitHub API by the lambda's. Note: the webhook secret is not longer part of the configuration object of the app.
+org, or repo), or create webhook in the App. The webhook is used to receive GitHub events to scale-up runners. Tha App is used to authorize against GitHub API by the lambda's. Note: the webhook secret is no longer part of the configuration object of the app.
 
 #### Option 1: Webhook
 
