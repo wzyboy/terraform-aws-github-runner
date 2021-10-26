@@ -41,7 +41,7 @@ async function verifySignature(githubEvent: string, signature: string, body: str
     return 500;
   }
 
-  const secret = await getParameterValue(process.env.ENVIRONMENT as string, 'github_app_webhook_secret');
+  const secret = await getParameterValue(process.env.ENVIRONMENT as string, 'github_webhook_secret');
 
   const webhooks = new Webhooks({
     secret: secret,

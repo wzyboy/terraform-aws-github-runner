@@ -1,9 +1,8 @@
 variable "github_app" {
   description = "GitHub app parameters, see your github app. Ensure the key is the base64-encoded `.pem` file (the output of `base64 app.private-key.pem`, not the content of `private-key.pem`)."
   type = object({
-    key_base64     = string
-    id             = string
-    webhook_secret = string
+    key_base64 = string
+    id         = string
   })
 }
 
@@ -22,4 +21,9 @@ variable "tags" {
   description = "Map of tags that will be added to created resources. By default resources will be tagged with name and environment."
   type        = map(string)
   default     = {}
+}
+variable "webhook_secret" {
+  description = "GitHub webhook secret to sign the events sent to the webhook (API Gateway)."
+  type        = string
+  default     = null
 }

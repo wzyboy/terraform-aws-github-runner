@@ -34,10 +34,11 @@ resource "aws_sqs_queue" "queued_builds" {
 module "ssm" {
   source = "./modules/ssm"
 
-  kms_key_arn = var.kms_key_arn
-  environment = var.environment
-  github_app  = var.github_app
-  tags        = local.tags
+  kms_key_arn    = var.kms_key_arn
+  environment    = var.environment
+  github_app     = var.github_app
+  webhook_secret = var.webhook_secret
+  tags           = local.tags
 }
 
 module "webhook" {
@@ -49,7 +50,7 @@ module "webhook" {
   kms_key_arn = var.kms_key_arn
 
   sqs_build_queue               = aws_sqs_queue.queued_builds
-  github_app_webhook_secret_arn = module.ssm.parameters.github_app_webhook_secret.arn
+  github_app_webhook_secret_arn = module.ssm.parameters.github_webhook_secret.arn
 
   lambda_s3_bucket                 = var.lambda_s3_bucket
   webhook_lambda_s3_key            = var.webhook_lambda_s3_key

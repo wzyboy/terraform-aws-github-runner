@@ -25,10 +25,11 @@ module "runners" {
   }
 
   github_app = {
-    key_base64     = var.github_app_key_base64
-    id             = var.github_app_id
-    webhook_secret = random_password.random.result
+    key_base64 = var.github_app_key_base64
+    id         = var.github_app_id
   }
+
+  webhook_secret = random_password.random.result
 
   webhook_lambda_zip                = "lambdas-download/webhook.zip"
   runner_binaries_syncer_lambda_zip = "lambdas-download/runner-binaries-syncer.zip"

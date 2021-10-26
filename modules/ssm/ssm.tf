@@ -14,10 +14,10 @@ resource "aws_ssm_parameter" "github_app_key_base64" {
   tags   = var.tags
 }
 
-resource "aws_ssm_parameter" "github_app_webhook_secret" {
-  name   = "/actions_runner/${var.environment}/github_app_webhook_secret"
+resource "aws_ssm_parameter" "github_webhook_secret" {
+  name   = "/actions_runner/${var.environment}/github_webhook_secret"
   type   = "SecureString"
-  value  = var.github_app.webhook_secret
+  value  = var.webhook_secret
   key_id = local.kms_key_arn
   tags   = var.tags
 }

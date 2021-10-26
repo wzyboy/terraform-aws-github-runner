@@ -31,12 +31,17 @@ variable "enable_organization_runners" {
 }
 
 variable "github_app" {
-  description = "GitHub app parameters, see your github app. Ensure the key is the base64-encoded `.pem` file (the output of `base64 app.private-key.pem`, not the content of `private-key.pem`)."
+  description = "GitHub app parameters, see your github app. Ensure the key is the base64-encoded `.pem` file (the output of `base64 app.private-key.pem`, not the content of `private-key.pem`). Webhook secret will be removed from the app object."
   type = object({
-    key_base64     = string
-    id             = string
-    webhook_secret = string
+    key_base64 = string
+    id         = string
   })
+}
+
+variable "webhook_secret" {
+  description = "GitHub webhook secret to sign the events sent to the webhook (API Gateway)."
+  type        = string
+  default     = null
 }
 
 variable "scale_down_schedule_expression" {
