@@ -1,6 +1,6 @@
 import { EC2, SSM } from 'aws-sdk';
-import { logger as rootLogger, LogFields } from './logger';
-import ScaleError from './ScaleError';
+import { logger as rootLogger, LogFields } from '../logger';
+import ScaleError from './../scale-runners/ScaleError';
 
 const logger = rootLogger.getChildLogger({ name: 'runners' });
 
@@ -39,6 +39,7 @@ export interface RunnerInputParameters {
     maxSpotPrice?: string;
     instanceAllocationStrategy: EC2.SpotAllocationStrategy;
   };
+  numberOfRunners?: number;
 }
 
 export async function listEC2Runners(filters: ListRunnerFilters | undefined = undefined): Promise<RunnerList[]> {
@@ -107,6 +108,7 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
   logger.debug('Runner configuration: ' + JSON.stringify(runnerParameters), LogFields.print());
 
   const ec2 = new EC2();
+  const numberOfRunners = runnerParameters.numberOfRunners ? runnerParameters.numberOfRunners : 1;
 
   let fleet: AWS.EC2.CreateFleetResult;
   try {
@@ -130,7 +132,7 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
           AllocationStrategy: 'capacity-optimized',
         },
         TargetCapacitySpecification: {
-          TotalTargetCapacity: 1,
+          TotalTargetCapacity: numberOfRunners,
           DefaultTargetCapacityType: runnerParameters.ec2instanceCriteria.targetCapacityType,
         },
         TagSpecifications: [
@@ -163,6 +165,7 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
       'UnfulfillableCapacity',
       'MaxSpotInstanceCountExceeded',
       'TargetCapacityLimitExceededException',
+      'RequestLimitExceeded',
       'ResourceLimitExceeded',
       'MaxSpotInstanceCountExceeded',
       'MaxSpotFleetRequestCountExceeded',
@@ -170,11 +173,11 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
 
     if (errors.some((e) => scaleErrors.includes(e))) {
       logger.warn('Create fleet failed, ScaleError will be thrown to trigger retry for ephemeral runners.');
-      logger.debug('Create fleet failed.', fleet);
+      logger.debug('Create fleet failed.', fleet.Errors);
       throw new ScaleError('Failed to create instance, create fleet failed.');
     } else {
-      logger.warn('Create fleet failed', fleet);
-      throw Error('Creat flee failed, no instance created.');
+      logger.warn('Create fleet failed, error not recognized as scaling error.', fleet.Errors);
+      throw Error('Create flee failed, no instance created.');
     }
   }
 

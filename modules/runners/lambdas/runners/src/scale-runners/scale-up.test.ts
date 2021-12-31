@@ -1,7 +1,7 @@
 import { mocked } from 'ts-jest/utils';
 import * as scaleUpModule from './scale-up';
-import { listEC2Runners, createRunner, RunnerInputParameters } from './runners';
-import * as ghAuth from './gh-auth';
+import { listEC2Runners, createRunner, RunnerInputParameters } from './../aws/runners';
+import * as ghAuth from '../gh-auth/gh-auth';
 import nock from 'nock';
 import { Octokit } from '@octokit/rest';
 import ScaleError from './ScaleError';
@@ -23,8 +23,8 @@ jest.mock('@octokit/rest', () => ({
   Octokit: jest.fn().mockImplementation(() => mockOctokit),
 }));
 
-jest.mock('./runners');
-jest.mock('./gh-auth');
+jest.mock('./../aws/runners');
+jest.mock('./../gh-auth/gh-auth');
 
 const mocktokit = Octokit as jest.MockedClass<typeof Octokit>;
 const mockedAppAuth = mocked(ghAuth.createGithubAppAuth, true);
@@ -376,6 +376,14 @@ describe('scaleUp with public GH', () => {
       data: { status: 'completed' },
     }));
     await scaleUpModule.scaleUp('aws:sqs', TEST_DATA);
+    expect(listEC2Runners).not.toBeCalled();
+  });
+
+  it('does not list runners when no workflows are queued (check_run)', async () => {
+    mockOctokit.checks.get.mockImplementation(() => ({
+      data: { status: 'completed' },
+    }));
+    await scaleUpModule.scaleUp('aws:sqs', { ...TEST_DATA, eventType: 'check_run' });
     expect(listEC2Runners).not.toBeCalled();
   });
 
